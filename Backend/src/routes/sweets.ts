@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import * as controller from '../controllers/sweets.ts';
-import { authenticate, authorize } from '../middleware/auth.ts';
+import * as controller from '../controllers/sweets';
+import { authenticate, authorize } from '../middleware/auth';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import Sweet from '../models/Sweet.ts';
+import Sweet from '../models/Sweet';
 
 export const listSweets = async (req: Request, res: Response) => {
   const sweets = await Sweet.find();
