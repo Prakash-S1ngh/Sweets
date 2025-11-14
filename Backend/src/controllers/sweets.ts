@@ -3,7 +3,11 @@ import Sweet from '../models/Sweet';
 
 export const listSweets = async (req: Request, res: Response) => {
   const sweets = await Sweet.find();
-  res.json(sweets);
+  console.log("sweets ",sweets);
+  return res.json({
+    success:true,
+    sweets:sweets
+  });
 };
 
 export const searchSweets = async (req: Request, res: Response) => {
