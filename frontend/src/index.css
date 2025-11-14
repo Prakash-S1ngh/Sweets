@@ -1,3 +1,45 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f7f5f2;
+  --card: #ffffff;
+  --muted: #6b6b6b;
+  --accent: #b45309;
+}
+/* Helper classes to avoid Tailwind arbitrary class warnings in linters */
+.bg-card { background: var(--card); }
+.bg-site { background: var(--bg); }
+.text-muted { color: var(--muted); }
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-[var(--bg)] text-gray-800 leading-relaxed;
+  font-family: 'Libre Baskerville', Georgia, serif;
+}
+
+.container {
+  @apply max-w-4xl mx-auto p-6;
+}
+
+.card {
+  background: var(--card);
+  @apply rounded-lg shadow-md p-6 border border-gray-200;
+}
+
+.header {
+  @apply mb-6;
+}
+
+.classic-btn {
+  background: linear-gradient(180deg, rgba(180,83,9,0.95), rgba(150,60,8,0.95));
+  color: white;
+  @apply px-4 py-2 rounded-md text-sm font-semibold;
+}
+
+.muted { color: var(--muted); }
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
