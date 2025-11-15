@@ -7,6 +7,7 @@ export interface ISweet {
   quantity: number;
   imageUrl?: string;
   userId: Types.ObjectId;
+  description?: string;
 }
 
 const SweetSchema = new Schema<ISweet>({
@@ -16,6 +17,7 @@ const SweetSchema = new Schema<ISweet>({
   quantity: { type: Number, required: true, default: 0 },
   imageUrl: { type: String },
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  description: { type: String }
 });
 
 export default model<ISweet>('Sweet', SweetSchema);

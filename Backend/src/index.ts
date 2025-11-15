@@ -9,12 +9,12 @@ dotenv.config();
 const PORT = Number(process.env.PORT || 4000);
 
 // Handle multiple resolve issues
-process.on('multipleResolves', (type, promise, reason) => {
-  console.warn('Multiple resolves detected:', { 
-    type, 
-    reason: util.inspect(reason, { depth: null }) 
-  });
-});
+// process.on('multipleResolves', (type, promise, reason) => {
+//   console.warn('Multiple resolves detected:', { 
+//     type, 
+//     reason: util.inspect(reason, { depth: null }) 
+//   });
+// });
 
 async function start() {
   try {

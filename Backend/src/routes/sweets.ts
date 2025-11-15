@@ -4,7 +4,8 @@ import { authenticate, authorize } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/', controller.listSweets);
+router.get('/',authenticate, controller.listSweets);
+// router.get('/customer', controller.fetchsweetsforcustomer);
 router.get('/search', controller.searchSweets);
 router.post('/', authenticate, authorize('admin'), controller.createSweet);
 router.put('/:id', authenticate, authorize('admin'), controller.updateSweet);
