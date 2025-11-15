@@ -2,10 +2,11 @@ import { useState, useContext } from "react";
 import axios from "axios";
 import SweetContext from "../Context/SweetContext";
 import url from "../Api"; // your backend base URL
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-    const { loginUser } = useContext(SweetContext); 
-
+    const { loginUser,setUserId,fetchUserDetails,setLoggedIn } = useContext(SweetContext); 
+    const navigate = useNavigate()
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
@@ -30,12 +31,12 @@ export default function Login() {
             localStorage.setItem("token", token);
 
             // Update Context
-            loginUser({
-                name: user.name,
-                email: user.email
-            });
+            // setUserId(user._id);
+            fetchUserDetails(user.id);
+            setLoggedIn(true);
+            console.log("User logged in:", user);
+            navigate("/dashboard");
 
-            alert("Login successful!");
 
         } catch (error) {
             console.error("Login error:", error);

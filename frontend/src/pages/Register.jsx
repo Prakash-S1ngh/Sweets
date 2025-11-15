@@ -20,7 +20,7 @@ export default function Register() {
         console.log(res)
 
       if (res.status === 201) {
-        alert("Registration successful! Please login.");
+        // alert("Registration successful! Please login.");
         navigate("/login");
       }
 
