@@ -4,6 +4,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import app from '../app';
 import User from '../models/User';
 import Sweet from '../models/Sweet';
+import { registerAndLogin } from './helpers';
 
 describe('Order flow (TDD)', () => {
   let agent: any;
@@ -13,20 +14,8 @@ describe('Order flow (TDD)', () => {
   });
 
   test('place order creates an Order and clears the Cart', async () => {
-    // register
-    const userRes = await agent.post('/api/auth/register').send({
-      name: 'TDD User',
-      email: 'tdd@example.com',
-      password: 'password123'
-    });
-    expect(userRes.status).toBe(201);
-
-    // login to set cookie
-    const loginRes = await agent.post('/api/auth/login').send({
-      email: 'tdd@example.com',
-      password: 'password123'
-    });
-    expect(loginRes.status).toBe(200);
+    // register + login (use helper)
+    await registerAndLogin(agent, 'tdd@example.com', 'password123', 'TDD User');
 
     // create a sweet (admin-like action) directly via model to avoid auth complexity
     const user = await User.findOne({ email: 'tdd@example.com' });
