@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import SweetContext from "../Context/SweetContext";
 
 export default function Header() {
-  const { isAdmin, logoutUser, cart } = useContext(SweetContext);
+  const { isAdmin, logoutUser, cart, selectedCategory, setSelectedCategory, categories } = useContext(SweetContext);
   const navigate = useNavigate();
 
   return (
@@ -28,7 +28,26 @@ export default function Header() {
           <input
             placeholder="Search sweets..."
             className="p-2 border rounded-md"
+            onChange={(e) => {
+              /* keep small header search - update global searchTerm if available */
+              const v = e.target.value;
+              // naive approach: set in localStorage so main input will pick it up
+              localStorage.setItem("headerSearch", v);
+              // also dispatch CustomEvent for other components to pick up
+              window.dispatchEvent(new CustomEvent("header:search", { detail: v }));
+            }}
           />
+
+          {/* CATEGORY (compact) */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-2 py-1 rounded border ml-2"
+          >
+            {(categories || []).map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
 
           {/* NAVIGATION */}
           <nav className="space-x-4 text-sm">

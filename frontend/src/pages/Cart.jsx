@@ -37,45 +37,54 @@ const Cart = () => {
       )}
 
       {/* CART LIST */}
-      {items.map((item) => (
-        <div
-          key={item.sweetId._id}
-          className="border p-4 rounded-lg mb-4 shadow"
-        >
-          <h4 className="text-lg font-semibold">{item.sweetId.name}</h4>
-          <p className="text-gray-600">₹{item.price}</p>
+      {items.map((item) => {
+        const product = item.sweetId || item; // handle populated sweetId or fallback
+        const img = product.imageUrl || product.image || item.imageUrl || null;
+        const key = (product && product._id) || item._id || item.sweetId?._id;
 
-          <div className="mt-3 flex items-center gap-3">
-            <button
-              onClick={() =>
-                updateQuantity(item.sweetId._id, item.quantity - 1)
-              }
-              className="px-3 py-1 bg-gray-300 rounded"
-            >
-              -
-            </button>
+        return (
+          <div key={key} className="border p-4 rounded-lg mb-4 shadow flex gap-4 items-center">
+            <div className="w-24 h-24 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+              {img ? (
+                <img src={img} alt={product.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-gray-500">No Image</div>
+              )}
+            </div>
 
-            <span className="font-semibold">{item.quantity}</span>
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold">{product.name}</h4>
+              <p className="text-gray-600">₹{item.price}</p>
 
-            <button
-              onClick={() =>
-                updateQuantity(item.sweetId._id, item.quantity + 1)
-              }
-              className="px-3 py-1 bg-gray-300 rounded"
-            >
-              +
-            </button>
+              <div className="mt-3 flex items-center gap-3">
+                <button
+                  onClick={() => updateQuantity(product._id, item.quantity - 1)}
+                  className="px-3 py-1 bg-gray-300 rounded"
+                >
+                  -
+                </button>
 
-            {/* REMOVE */}
-            <button
-              onClick={() => updateQuantity(item.sweetId._id, 0)}
-              className="ml-auto px-4 py-1 bg-red-500 text-white rounded-lg"
-            >
-              Remove
-            </button>
+                <span className="font-semibold">{item.quantity}</span>
+
+                <button
+                  onClick={() => updateQuantity(product._id, item.quantity + 1)}
+                  className="px-3 py-1 bg-gray-300 rounded"
+                >
+                  +
+                </button>
+
+                {/* REMOVE */}
+                <button
+                  onClick={() => updateQuantity(product._id, 0)}
+                  className="ml-auto px-4 py-1 bg-red-500 text-white rounded-lg"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
 
       {/* PLACE ORDER */}
       {items.length > 0 && (

@@ -1,10 +1,38 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import SweetContext from "../Context/SweetContext";
 import SweetCard from "../components/SweetCard";
+import Spinner from "../components/Spinner";
 import AddSweets from "../pages/AddSweets";
+import Modal from "../components/Modal";
 
 export default function Dashboard() {
-  const { user, sweets, isAdmin, loggedIn } = useContext(SweetContext);
+  const {
+    user,
+    sweets,
+    filteredSweets,
+    searchTerm,
+    setSearchTerm,
+    selectedCategory,
+    setSelectedCategory,
+    categories,
+    isAdmin,
+    loggedIn,
+    sweetsLoading,
+  } = useContext(SweetContext);
+
+  const [q, setQ] = useState(searchTerm || "");
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  // sync initial searchTerm into local input
+  useEffect(() => {
+    setQ(searchTerm || "");
+  }, [searchTerm]);
+
+  // debounce updating context searchTerm
+  useEffect(() => {
+    const t = setTimeout(() => setSearchTerm(q), 300);
+    return () => clearTimeout(t);
+  }, [q, setSearchTerm]);
 
   if (!loggedIn) {
     return (
@@ -48,23 +76,47 @@ export default function Dashboard() {
       {/* === SWEETS GRID === */}
       <div className="card p-6 rounded-xl bg-white/40 backdrop-blur-md shadow-lg">
 
-        <h2 className="text-xl font-bold mb-4">🍬 Available Sweets</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">🍬 Available Sweets</h2>
+          <div className="flex gap-2 items-center">
+            
 
-        {sweets.length === 0 ? (
-          <p className="text-center muted">No sweets available.</p>
+            {/* Admin + button to open AddSweets modal */}
+            {isAdmin && (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="ml-4 px-3 py-2 rounded bg-green-500 text-white hover:bg-green-600"
+                title="Add New Sweet"
+              >
+                + Add Sweet
+              </button>
+            )}
+          </div>
+        </div>
+
+        {sweetsLoading ? (
+          <div className="py-16 flex justify-center">
+            <Spinner size={36} />
+          </div>
+        ) : ( (filteredSweets || []).length === 0 ? (
+          <p className="text-center muted">No sweets match your search.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sweets.map((sweet) => (
+            {filteredSweets.map((sweet) => (
               <SweetCard key={sweet._id} sweet={sweet} />
             ))}
           </div>
-        )}
+        ))}
 
-        {/* ADMIN CAN ADD SWEETS */}
-        {isAdmin && (
-          <div className="mt-8">
-            <AddSweets />
-          </div>
+        {/* ADMIN: modal for adding sweets */}
+        {showAddModal && (
+          <Modal title="Add New Sweet" onClose={() => setShowAddModal(false)}>
+            <AddSweets onSuccess={() => {
+              setShowAddModal(false);
+              // trigger refresh by updating search or calling fetchSweets via event
+              window.dispatchEvent(new CustomEvent('sweets:refresh'));
+            }} />
+          </Modal>
         )}
       </div>
 

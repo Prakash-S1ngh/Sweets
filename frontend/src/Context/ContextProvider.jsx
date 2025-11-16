@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import SweetContext from "./SweetContext";
 import url from "../Api";
@@ -6,6 +6,9 @@ import Toasts from "../components/Toast";
 
 const SweetProvider = ({ children }) => {
   const [sweets, setSweets] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [filteredSweets, setFilteredSweets] = useState([]);
   const [userId, setUserId] = useState(() => localStorage.getItem("userId"));
   const [loggedIn, setLoggedIn] = useState(() => localStorage.getItem("loggedIn") === "true");
 
@@ -15,6 +18,7 @@ const SweetProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   const [toasts, setToasts] = useState([]);
+  const [sweetsLoading, setSweetsLoading] = useState(false);
 
   const showToast = (message, type = "success") => {
     const id = Date.now() + Math.random().toString(36).slice(2, 9);
@@ -32,21 +36,21 @@ const SweetProvider = ({ children }) => {
   }, [userId, loggedIn]);
 
   // Fetch sweets & user
-  useEffect(() => {
-    fetchUserDetails();
-    fetchSweets();
+  // define fetch helpers before effects so they are stable when used
+  const fetchCart = useCallback(async () => {
+    try {
+      const res = await axios.get(`${url}/api/auth/getcart`, {
+        withCredentials: true,
+      });
+
+      setCart(res.data.cart);
+    } catch (err) {
+      if (err?.response?.status !== 401) console.error("Cart fetch error:", err);
+      setCart(null);
+    }
   }, []);
 
-  const fetchSweets = async () => {
-    try {
-      const response = await axios.get(`${url}/api/sweets/`, { withCredentials: true });
-      setSweets(response.data.sweets);
-    } catch (error) {
-      console.error("Error fetching sweets:", error);
-    }
-  };
-
-  const fetchUserDetails = async () => {
+  const fetchUserDetails = useCallback(async () => {
     try {
       const res = await axios.get(`${url}/api/auth/users`, { withCredentials: true });
 
@@ -60,7 +64,54 @@ const SweetProvider = ({ children }) => {
       console.log("User details fetch failed:", error);
       setCart(null);
     }
-  };
+  }, [fetchCart]);
+
+  const fetchSweets = useCallback(async () => {
+    setSweetsLoading(true);
+    try {
+      const response = await axios.get(`${url}/api/sweets/`, { withCredentials: true });
+      setSweets(response.data.sweets);
+      // initialize filters
+      setFilteredSweets(response.data.sweets || []);
+    } catch (error) {
+      console.error("Error fetching sweets:", error);
+    } finally {
+      setSweetsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUserDetails();
+    fetchSweets();
+  }, [fetchUserDetails, fetchSweets]);
+
+  // If user logs in later (without full refresh), ensure sweets are fetched
+  useEffect(() => {
+    if (loggedIn) {
+      fetchSweets();
+    }
+  }, [loggedIn, fetchSweets]);
+
+  // listen to header search events and sweets refresh requests
+  useEffect(() => {
+    const onHeaderSearch = (e) => {
+      setSearchTerm(e.detail || "");
+    };
+
+    const onRefresh = () => {
+      fetchSweets();
+    };
+
+    window.addEventListener("header:search", onHeaderSearch);
+    window.addEventListener("sweets:refresh", onRefresh);
+
+    return () => {
+      window.removeEventListener("header:search", onHeaderSearch);
+      window.removeEventListener("sweets:refresh", onRefresh);
+    };
+  }, [fetchSweets]);
+
+  
 
   // LOGOUT
   const logoutUser = async () => {
@@ -81,18 +132,7 @@ const SweetProvider = ({ children }) => {
   // ===============================
   // CART: FETCH
   // ===============================
-  const fetchCart = async () => {
-    try {
-      const res = await axios.get(`${url}/api/auth/getcart`, {
-        withCredentials: true,
-      });
-
-      setCart(res.data.cart); // store full cart object
-    } catch (err) {
-      if (err?.response?.status !== 401) console.error("Cart fetch error:", err);
-      setCart(null);
-    }
-  };
+  
 
   // ===============================
   // CART: UPDATE QUANTITY
@@ -140,6 +180,28 @@ const SweetProvider = ({ children }) => {
   };
 
   // ===============================
+  // SEARCH & FILTERING
+  // ===============================
+  // derive categories from sweets
+  const categories = React.useMemo(() => {
+    const set = new Set((sweets || []).map((s) => s.category).filter(Boolean));
+    return ['All', ...Array.from(set)];
+  }, [sweets]);
+
+  // update filteredSweets when sweets, searchTerm, or selectedCategory change
+  React.useEffect(() => {
+    let list = (sweets || []).slice();
+    const q = (searchTerm || '').trim().toLowerCase();
+    if (q) {
+      list = list.filter((s) => (s.name || '').toLowerCase().includes(q) || (s.category || '').toLowerCase().includes(q));
+    }
+    if (selectedCategory && selectedCategory !== 'All') {
+      list = list.filter((s) => s.category === selectedCategory);
+    }
+    setFilteredSweets(list);
+  }, [sweets, searchTerm, selectedCategory]);
+
+  // ===============================
   // PLACE ORDER
   // ===============================
   const placeOrder = async () => {
@@ -165,6 +227,13 @@ const SweetProvider = ({ children }) => {
         // Sweet
         sweets,
         setSweets,
+        filteredSweets,
+        searchTerm,
+        setSearchTerm,
+        selectedCategory,
+        setSelectedCategory,
+        categories,
+        sweetsLoading,
 
         // User
         user,
@@ -172,6 +241,7 @@ const SweetProvider = ({ children }) => {
         userId,
         setUserId,
         fetchUserDetails,
+        fetchSweets,
         loggedIn,
         setLoggedIn,
         isAdmin,

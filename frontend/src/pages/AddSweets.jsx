@@ -20,7 +20,7 @@ const categories = [
   "Indian Sweets"
 ];
 
-const AddSweets = () => {
+const AddSweets = ({ onSuccess } = {}) => {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState("");
@@ -68,6 +68,7 @@ const AddSweets = () => {
       setPrice("");
       setImageUrl("");
       setDescription("");
+      if (typeof onSuccess === 'function') onSuccess();
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Something went wrong.");
