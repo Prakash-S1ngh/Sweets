@@ -5,6 +5,7 @@ import SweetContext from "./Context/SweetContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";       // You created this
+import OrderHistory from "./pages/OrderHistory";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Cart from "./pages/Cart";
 
@@ -32,6 +33,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path='/cart' element={<Cart/>}/>
+        <Route path='/orders' element={<OrderHistory/>} />
 
         {/* Default Route: Show login/register screen */}
         <Route

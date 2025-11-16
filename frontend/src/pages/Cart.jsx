@@ -89,7 +89,10 @@ const Cart = () => {
       {/* PLACE ORDER */}
       {items.length > 0 && (
         <button
-          onClick={placeOrder}
+          onClick={async () => {
+            const order = await placeOrder();
+            if (order) navigate('/orders');
+          }}
           className="mt-5 w-full py-3 bg-green-600 text-white text-lg font-semibold rounded-lg shadow hover:bg-green-700 transition"
         >
           Place Order

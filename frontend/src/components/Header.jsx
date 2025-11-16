@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import SweetContext from "../Context/SweetContext";
 
 export default function Header() {
-  const { isAdmin, logoutUser, cart, selectedCategory, setSelectedCategory, categories } = useContext(SweetContext);
+  const { isAdmin, logoutUser, cart, selectedCategory, setSelectedCategory, categories, loggedIn } = useContext(SweetContext);
   const navigate = useNavigate();
 
   return (
@@ -54,6 +54,11 @@ export default function Header() {
             {isAdmin && (
               <Link to="/admin" className="muted hover:text-black">
                 Admin
+              </Link>
+            )}
+            {loggedIn && (
+              <Link to="/orders" className="muted hover:text-black">
+                Orders
               </Link>
             )}
           </nav>

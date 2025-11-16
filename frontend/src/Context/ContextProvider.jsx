@@ -206,11 +206,7 @@ const SweetProvider = ({ children }) => {
   // ===============================
   const placeOrder = async () => {
     try {
-      const res = await axios.post(
-        `${url}/api/auth/placeorder`,
-        {},
-        { withCredentials: true }
-      );
+      const res = await axios.post(`${url}/api/orders/place`, {}, { withCredentials: true });
 
       showToast("Order placed!", "success");
       await fetchCart();
