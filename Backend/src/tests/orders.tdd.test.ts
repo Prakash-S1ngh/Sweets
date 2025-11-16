@@ -13,8 +13,6 @@ describe('Order flow (TDD)', () => {
   });
 
   test('place order creates an Order and clears the Cart', async () => {
-    // Temporary failing assertion to demonstrate Red step
-    expect(false).toBe(true);
     // register
     const userRes = await agent.post('/api/auth/register').send({
       name: 'TDD User',
