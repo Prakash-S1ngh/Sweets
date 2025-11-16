@@ -3,8 +3,11 @@ import { Schema,model,Types } from "mongoose";
 export interface CartItems{
     user:Types.ObjectId
     price:number
-    item:[Types.ObjectId]
-    quantity:number
+  items: Array<{
+    sweetId: Types.ObjectId;
+    quantity: number;
+    price: number;
+  }>;
 }
 
 const CartSchema = new Schema(
